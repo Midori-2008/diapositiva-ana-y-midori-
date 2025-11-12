@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defensa - Sistema de Reservas Pollos Rocky</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFD4D4 50%, #FFC9D4 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 182, 193, 0.4);
+            padding: 50px;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #FFB6C1;
+            padding-bottom: 20px;
+        }
+
+        .slide-header h1 {
+            color: #FF69B4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .slide-header h2 {
+            color: #FF1493;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .slide-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .content-section {
+            margin: 30px 0;
+        }
+
+        .content-section h3 {
+            color: #FF69B4;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            border-left: 5px solid #FFB6C1;
+            padding-left: 15px;
+        }
+
+        .content-section h4 {
+            color: #FF1493;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            padding: 10px 0 10px 30px;
+            position: relative;
+            font-size: 1.1em;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .bullet-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #FF69B4;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .diagram {
+            background: #FFF5F7;
+            border: 2px solid #FFB6C1;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(255, 182, 193, 0.2);
+        }
+
+        th {
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #FFE5E5;
+            font-size: 1em;
+        }
+
+        tr:hover {
+            background: #FFF5F7;
+        }
+
+        .highlight-box {
+            background: #FFF5F7;
+            border-left: 5px solid #FF69B4;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+            margin-right: 8px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(255,255,255,0.95);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+        }
+
+        .nav-button:disabled {
+            background: #DDD;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .slide-counter {
+            font-weight: bold;
+            color: #FF69B4;
+            font-size: 1.1em;
+            padding: 0 15px;
+        }
+
+        .logo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-placeholder {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            .slide-header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .tech-badge {
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        
+        <!-- SLIDE 1: PORTADA -->
+        <div class="slide active">
+            <div class="logo-header">
+                <div class="logo-placeholder">🍗</div>
+                <h1 style="color: #FF69B4; font-size: 2.8em; margin-bottom: 15px;">SISTEMA DE RESERVAS CON PHP</h1>
+                <h2 style="font-size: 1.8em; color: #FF1493; font-weight: bold; margin: 20px 0;">RESTAURANTE POLLOS ROCKY</h2>
+                <div style="margin: 30px 0; padding: 20px; background: #FFF5F7; border-radius: 10px;">
+                    <p style="font-size: 1.2em; margin: 10px 0;"><strong>Postulantes:</strong> Midori Morón Daza - Ana Estévez Copa</p>
+                    <p style="font-size: 1.2em; margin: 10px 0;"><strong>Carrera:</strong> Técnico Medio en Sistemas Informáticos</p>
+                    <p style="font-size: 1.2em; margin: 10px 0;"><strong>Institución:</strong> BTH Núcleo "Las Gamas"</p>
+                    <p style="font-size: 1.2em; margin: 10px 0;"><strong>Gestión:</strong> 2025</p>
+                    <p style="font-size: 1.2em; margin: 10px 0;"><strong>Docente:</strong> Lic. Juan David Uscamayta Ramos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: INTRODUCCIÓN Y DIAGNÓSTICO -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>INTRODUCCIÓN Y DIAGNÓSTICO</h2>
+            </div>
+            
+            <div class="content-section">
+                <h3>📋 Contexto: Problemática en Restaurantes</h3>
+                <ul class="bullet-list">
+                    <li>Sistemas de reservas manuales (cuadernos, llamadas telefónicas)</li>
+                    <li>Confusión y pérdida de información</li>
+                    <li>Duplicación de reservas</li>
+                    <li>Tiempo excesivo en gestión de clientes</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <h4><span class="emoji">⚠️</span>Problema Identificado</h4>
+                <p style="font-size: 1.2em;">El restaurante Pollos Rocky necesita modernizar su proceso de gestión de reservas para mejorar la eficiencia operativa y la experiencia del cliente.</p>
+            </div>
+
+            <div class="content-section">
+                <h3>💡 Oportunidad</h3>
+                <p style="font-size: 1.2em; padding: 20px; background: #FFF5F7; border-radius: 10px;">
+                    <strong>Digitalización del proceso de reservas</strong> mediante tecnologías web modernas (PHP, MySQL) para optimizar la gestión administrativa del restaurante.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: OBJETIVOS Y JUSTIFICACIÓN -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>OBJETIVOS Y JUSTIFICACIÓN</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>🎯 Objetivo General</h3>
+                <p style="font-size: 1.2em; padding: 20px; background: #FFF5F7; border-radius: 10px; border-left: 5px solid #FF69B4;">
+                    Desarrollar un sistema web de reservas para optimizar la gestión de mesas en el restaurante Pollos Rocky
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h3>📌 Objetivos Específicos</h3>
+                <ul class="bullet-list">
+                    <li>Diseñar una interfaz intuitiva para clientes y administradores</li>
+                    <li>Implementar un calendario de disponibilidad de mesas</li>
+                    <li>Desarrollar módulo de gestión de clientes y reservas</li>
+                    <li>Garantizar la seguridad de datos mediante validaciones</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h3>✅ Justificación</h3>
+                <div style="background: #FFF5F7; padding: 20px; border-radius: 10px;">
+                    <h4>📚 Técnica</h4>
+                    <p>Aplicación de tecnologías web actuales (PHP, MySQL, HTML/CSS/JS)</p>
+                    <h4 style="margin-top: 15px;">👥 Social</h4>
+                    <p>Mejora la experiencia del cliente y moderniza el servicio del restaurante</p>
+                    <h4 style="margin-top: 15px;">🎓 Académica</h4>
+                    <p>Consolidación de competencias técnicas en desarrollo de software</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: ANÁLISIS DE MERCADO -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>ANÁLISIS DE MERCADO</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>💻 PRODUCTO</h3>
+                <p style="font-size: 1.2em; margin-bottom: 15px;"><strong>Sistema web para gestión de reservas de mesas</strong></p>
+                <ul class="bullet-list">
+                    <li>Registro de clientes con validación de datos</li>
+                    <li>Gestión de disponibilidad de mesas</li>
+                    <li>Sistema de reservas en tiempo real</li>
+                    <li>Panel administrativo completo</li>
+                    <li>Confirmación automática de reservas</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h3>📊 MERCADO</h3>
+                <div class="two-columns">
+                    <div>
+                        <h4><span class="emoji">🎯</span>Público Objetivo</h4>
+                        <p style="padding: 15px; background: #FFF5F7; border-radius: 8px;">
+                            Restaurante Pollos Rocky<br>
+                            <strong>Ubicación: Doble vía Buena Fe, Warnes</strong>
+                        </p>
+                    </div>
+                    <div>
+                        <h4><span class="emoji">📈</span>Demanda</h4>
+                        <p style="padding: 15px; background: #FFF5F7; border-radius: 8px;">
+                            100 encuestas realizadas<br>
+                            <strong>Mayoría considera importante un sistema digital</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 20px;"><span class="emoji">🏆</span>Competencia</h4>
+                <ul class="bullet-list">
+                    <li><strong>Sistemas manuales (80%)</strong> - Método tradicional predominante</li>
+                    <li><strong>Sistemas genéricos</strong> - No especializados en restaurantes locales</li>
+                    <li><strong>Plataformas importadas</strong> - Costosas y en idioma extranjero</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <h4><span class="emoji">✅</span>Ventaja Competitiva DOUTECH</h4>
+                    <p style="font-size: 1.1em;">✓ Desarrollado localmente • ✓ Precio accesible • ✓ Soporte en español • ✓ Adaptado a necesidades específicas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: ARQUITECTURA DEL SISTEMA -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>ARQUITECTURA DEL SISTEMA</h2>
+            </div>
+
+            <div class="diagram">
+┌─────────────────┐
+│   NAVEGADOR     │ HTML5, CSS3, JavaScript
+│  (Frontend)     │
+└────────┬────────┘
+         │ HTTP
+┌────────▼────────┐
+│     APACHE      │ Servidor Web
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│      PHP        │ Lógica de Negocio
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│     MySQL       │ Base de Datos
+└─────────────────┘
+            </div>
+
+            <div class="content-section">
+                <h3>🛠️ Stack Tecnológico</h3>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="tech-badge">HTML5</span>
+                    <span class="tech-badge">CSS3</span>
+                    <span class="tech-badge">JavaScript</span>
+                    <span class="tech-badge">PHP</span>
+                    <span class="tech-badge">MySQL</span>
+                    <span class="tech-badge">Apache</span>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4><span class="emoji">🏗️</span>Arquitectura en Capas</h4>
+                <p style="font-size: 1.1em;">
+                    <strong>• Capa de Presentación:</strong> Interfaces web para cliente y administrador<br>
+                    <strong>• Capa de Negocio:</strong> Lógica del sistema (reservas, validaciones)<br>
+                    <strong>• Capa de Datos:</strong> Base de datos MySQL
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: BASE DE DATOS -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>DISEÑO DE BASE DE DATOS</h2>
+            </div>
+
+            <div class="diagram">
+┌──────────┐       ┌──────────┐       ┌──────────┐
+│ CLIENTES │───┐   │ RESERVAS │   ┌───│  MESAS   │
+└──────────┘   │   └──────────┘   │   └──────────┘
+  - id         └───- id_cliente   │   - id_mesa
+  - nombre         - id_mesa──────┘   - numero
+  - telefono       - fecha            - capacidad
+  - email          - hora             - estado
+                   - personas
+                   - estado
+            </div>
+
+            <div class="content-section">
+                <h3>📊 Estructura de Base de Datos</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tabla</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>clientes</strong></td>
+                                <td>Datos de los clientes que realizan reservas</td>
+                            </tr>
+                            <tr>
+                                <td><strong>mesas</strong></td>
+                                <td>Información de mesas disponibles en el restaurante</td>
+                            </tr>
+                            <tr>
+                                <td><strong>reservas</strong></td>
+                                <td>Registro de todas las reservas realizadas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h4 style="margin-top: 20px;">🔗 Relaciones Clave</h4>
+                <ul class="bullet-list">
+                    <li><strong>Clientes ↔ Reservas:</strong> Un cliente puede tener múltiples reservas</li>
+                    <li><strong>Mesas ↔ Reservas:</strong> Una mesa puede tener múltiples reservas en diferentes horarios</li>
+                    <li><strong>Integridad referencial:</strong> Claves foráneas para mantener consistencia</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: REQUERIMIENTOS -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>REQUERIMIENTOS DEL SISTEMA</h2>
+            </div>
+
+            <div class="two-columns">
+                <div class="content-section">
+                    <h3>✅ FUNCIONALES</h3>
+                    <ul class="bullet-list">
+                        <li><strong>RF01:</strong> Registro de clientes</li>
+                        <li><strong>RF02:</strong> Inicio de sesión</li>
+                        <li><strong>RF03:</strong> Realizar reservas</li>
+                        <li><strong>RF04:</strong> Consultar reservas</li>
+                        <li><strong>RF05:</strong> Gestión de disponibilidad</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3>⚙️ NO FUNCIONALES</h3>
+                    
+                    <div style="background: #FFF5F7; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h4>🔒 Seguridad</h4>
+                        <p>Contraseñas encriptadas y validación de datos</p>
+                    </div>
+
+                    <div style="background: #FFF5F7; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h4>⚡ Rendimiento</h4>
+                        <p>Soporta 100 usuarios simultáneos</p>
+                    </div>
+
+                    <div style="background: #FFF5F7; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <h4>💤 Usabilidad</h4>
+                        <p>Interfaz intuitiva y responsive</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: CASOS DE USO -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>CASOS DE USO</h2>
+            </div>
+
+            <div class="two-columns">
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px;">
+                    <h3 style="text-align: center; color: #FF69B4;">👤 CLIENTE</h3>
+                    <ul class="bullet-list">
+                        <li>Registrarse en el sistema</li>
+                        <li>Iniciar sesión</li>
+                        <li>Ver mesas disponibles</li>
+                        <li>Realizar reserva</li>
+                        <li>Consultar sus reservas</li>
+                    </ul>
+                </div>
+
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px;">
+                    <h3 style="text-align: center; color: #FF1493;">👨‍💼 ADMINISTRADOR</h3>
+                    <ul class="bullet-list">
+                        <li>Gestionar clientes</li>
+                        <li>Administrar mesas</li>
+                        <li>Ver todas las reservas</li>
+                        <li>Confirmar/cancelar reservas</li>
+                        <li>Configurar disponibilidad</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: DEMOSTRACIÓN -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>DEMOSTRACIÓN DEL SISTEMA</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>📸 Pantallas del Sistema</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 2.5em;">📦</span>
+                        <p style="font-weight: bold; margin-top: 10px;">Interfaz responsive</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 2.5em;">🗄️</span>
+                        <p style="font-weight: bold; margin-top: 10px;">Base de datos relacional</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-columns">
+                <div class="content-section">
+                    <h3>🥘 IMPACTO PARA EL RESTAURANTE</h3>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                        <h4><span class="emoji">⬇️</span>Reducción de errores</h4>
+                        <p>Eliminación de duplicación de reservas</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                        <h4><span class="emoji">⬆️</span>Mayor eficiencia</h4>
+                        <p>Optimización administrativa</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>😊 IMPACTO PARA CLIENTES</h3>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                        <h4><span class="emoji">⏰</span>Disponibilidad 24/7</h4>
+                        <p>Reservas en cualquier momento</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                        <h4><span class="emoji">📱</span>Acceso fácil</h4>
+                        <p>Desde cualquier dispositivo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: PROYECTO DE VIDA -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>PROYECTO DE VIDA - DOUTECH</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>🎯 CORTO PLAZO (3 meses)</h3>
+                
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <h4><span class="emoji">🎓</span>Académico</h4>
+                    <ul class="bullet-list">
+                        <li>Obtener título de Técnico Medio en Sistemas Informáticos</li>
+                        <li>Perfeccionar conocimientos en PHP y MySQL</li>
+                        <li>Aprender nuevas tecnologías web</li>
+                    </ul>
+                </div>
+
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <h4><span class="emoji">💼</span>Profesional</h4>
+                    <ul class="bullet-list">
+                        <li>Implementar el sistema en Pollos Rocky</li>
+                        <li>Desarrollar portafolio de proyectos</li>
+                        <li>Consolidar emprendimiento DOUTECH</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>🎯 MEDIANO PLAZO (6 meses - 1 año)</h3>
+                
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <h4><span class="emoji">💻</span>Profesional</h4>
+                    <ul class="bullet-list">
+                        <li>Ofrecer servicios de desarrollo web a otros restaurantes</li>
+                        <li>Expandir funcionalidades del sistema</li>
+                        <li>Alcanzar 5-10 clientes activos</li>
+                        <li>Generar ingresos sostenibles</li>
+                    </ul>
+                </div>
+
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <h4><span class="emoji">🎓</span>Académico</h4>
+                    <ul class="bullet-list">
+                        <li>Iniciar estudios universitarios en Ingeniería de Sistemas</li>
+                        <li>Capacitación continua en nuevas tecnologías</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: VISIÓN A LARGO PLAZO -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>VISIÓN A LARGO PLAZO</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>🎯 LARGO PLAZO (3 años)</h3>
+                
+                <div style="background: linear-gradient(135deg, #FFB6C1, #FF69B4); color: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="color: white; font-size: 1.5em; margin-bottom: 20px;"><span class="emoji">🢢</span>Visión: DOUTECH</h4>
+                    
+                    <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h4 style="color: white;">Consolidar DOUTECH como empresa tecnológica</h4>
+                        <ul style="list-style: none; padding-left: 20px; margin-top: 10px; color: white;">
+                            <li>• Software especializado para restaurantes y negocios</li>
+                            <li>• Equipo de desarrolladores</li>
+                            <li>• Presencia en Santa Cruz y zonas aledañas</li>
+                        </ul>
+                    </div>
+
+                    <ul style="list-style: none; padding: 0; margin-top: 20px; color: white;">
+                        <li style="margin: 10px 0;">🌐 Ofrecer soluciones SaaS (Software como Servicio)</li>
+                        <li style="margin: 10px 0;">📱 Desarrollar apps móviles</li>
+                        <li style="margin: 10px 0;">🌎 Expandir a otros sectores: salud, educación, comercio</li>
+                    </ul>
+                </div>
+
+                <div style="background: #FFF5F7; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <h4><span class="emoji">🎯</span>Metas Personales</h4>
+                    <ul class="bullet-list">
+                        <li>Obtener título universitario</li>
+                        <li>Generar empleo para otros desarrolladores</li>
+                        <li>Contribuir al desarrollo tecnológico local</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: CONCLUSIONES Y RECOMENDACIONES -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>CONCLUSIONES Y RECOMENDACIONES</h2>
+            </div>
+
+            <div class="content-section">
+                <h3 style="color: #FF69B4;">📝 CONCLUSIONES</h3>
+                <ol style="font-size: 1.1em; line-height: 2; padding-left: 20px;">
+                    <li><strong>Sistema funcional</strong> desarrollado con tecnologías web modernas (PHP, MySQL)</li>
+                    <li><strong>Solución efectiva</strong> a la problemática de gestión manual de reservas</li>
+                    <li><strong>Mejora significativa</strong> en la experiencia del cliente y eficiencia operativa</li>
+                    <li><strong>Fortalecimiento de competencias</strong> técnicas y profesionales</li>
+                    <li><strong>Base sólida</strong> para el emprendimiento DOUTECH</li>
+                </ol>
+
+                <h4 style="margin-top: 30px; color: #FF1493;"><span class="emoji">💡</span>RECOMENDACIONES</h4>
+                <ul class="bullet-list">
+                    <li>Implementar notificaciones automáticas (email/SMS)</li>
+                    <li>Agregar módulo de menú y pedidos en línea</li>
+                    <li>Desarrollar aplicación móvil nativa</li>
+                    <li>Integrar sistema de pagos digitales</li>
+                    <li>Expandir a otros restaurantes de la zona</li>
+                </ul>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #FFB6C1, #FF69B4); color: white; padding: 40px; border-radius: 15px; text-align: center; margin-top: 40px;">
+                <h2 style="color: white; font-size: 2.5em; margin-bottom: 20px;">¿PREGUNTAS?</h2>
+                <p style="font-size: 1.3em;">📧 doutech.contacto@gmail.com</p>
+                <p style="font-size: 1.5em; margin-top: 30px; font-weight: bold;">¡Gracias por su atención!</p>
+                <p style="font-size: 1.2em; margin-top: 20px;">Midori Morón Daza - Ana Estévez Copa</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <div class="navigation">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">◀ Anterior</button>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">14</span></span>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Siguiente ▶</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (n > totalSlides) currentSlide = totalSlides;
+            if (n < 1) currentSlide = 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+            
+            slides[currentSlide - 1].scrollTop = 0;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html> center; border: 3px solid #FFB6C1;">
+                        <span style="font-size: 4em;">🔐</span>
+                        <h4>Inicio de Sesión</h4>
+                        <p>Acceso seguro al sistema</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center; border: 3px solid #FFB6C1;">
+                        <span style="font-size: 4em;">📝</span>
+                        <h4>Formulario de Reserva</h4>
+                        <p>Datos del cliente y mesa</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center; border: 3px solid #FFB6C1;">
+                        <span style="font-size: 4em;">👨‍💼</span>
+                        <h4>Panel Admin</h4>
+                        <p>Gestión de reservas</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center; border: 3px solid #FFB6C1;">
+                        <span style="font-size: 4em;">📊</span>
+                        <h4>Listado de Reservas</h4>
+                        <p>Control completo</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎥 DEMOSTRACIÓN EN VIVO</h3>
+                <ol style="font-size: 1.1em; line-height: 2;">
+                    <li><strong>Login</strong> → Acceso al sistema</li>
+                    <li><strong>Crear reserva</strong> → Selección de mesa y horario</li>
+                    <li><strong>Confirmar</strong> → Reserva registrada</li>
+                    <li><strong>Panel admin</strong> → Verificar nueva reserva</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: INVERSIÓN Y COSTOS -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>INVERSIÓN Y COSTOS</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>💰 CAPITAL DE INVERSIÓN</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Costo (Bs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Hosting y Dominio</td>
+                                <td style="text-align: right; font-weight: bold;">Gratuito</td>
+                            </tr>
+                            <tr>
+                                <td>Publicidad inicial</td>
+                                <td style="text-align: right; font-weight: bold;">2,000</td>
+                            </tr>
+                            <tr style="background: linear-gradient(135deg, #FFB6C1, #FF69B4); color: white;">
+                                <td><strong>TOTAL INVERSIÓN</strong></td>
+                                <td style="text-align: right;"><strong>2,000</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>📊 COSTOS OPERATIVOS</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Mensual (Bs.)</th>
+                                <th>Anual (Bs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Internet</td>
+                                <td style="text-align: right;">250</td>
+                                <td style="text-align: right; font-weight: bold;">3,000</td>
+                            </tr>
+                            <tr>
+                                <td>Soporte técnico</td>
+                                <td style="text-align: right;">200</td>
+                                <td style="text-align: right; font-weight: bold;">2,400</td>
+                            </tr>
+                            <tr>
+                                <td>Mantenimiento</td>
+                                <td style="text-align: right;">150</td>
+                                <td style="text-align: right; font-weight: bold;">1,800</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: RESULTADOS E IMPACTO -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>RESULTADOS E IMPACTO</h2>
+            </div>
+
+            <div class="content-section">
+                <h3>✅ RESULTADOS ALCANZADOS</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 2.5em;">✅</span>
+                        <p style="font-weight: bold; margin-top: 10px;">Sistema 100% funcional</p>
+                    </div>
+                    <div style="background: #FFF5F7; padding: 20px; border-radius: 10px; text-align:
